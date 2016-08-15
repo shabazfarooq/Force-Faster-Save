@@ -1,0 +1,4 @@
+{
+  "cmd": ["~/node-workspace/Force-Faster-Save/main.js ${file}"],
+  "shell": true
+}
