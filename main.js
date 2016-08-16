@@ -3,7 +3,6 @@
 /**
  * Required modules
  */
-var fs = require('fs');
 var getTableExtension = require('./getTableExtension.js');
 var validateAndExtractArgs = require('./validateAndExtractArgs.js');
 var extractFromFullPath = require('./extractFromFullPath');
@@ -12,6 +11,7 @@ var readAndValidateLocalCredentials = require('./readAndValidateLocalCredentials
 var sfdcQueryAndLogin = require('./sfdcQueryAndLogin.js');
 var Timer = require('./Timer');
 var logger = require('./logger');
+var updateCredentialsJson = require('./updateCredentialsJson');
 var UPDATE_SALESFORCE_COMPONENT_JS = 'updateSalesForceComponent.js';
 
 /**
@@ -81,5 +81,7 @@ sfdcQueryAndLogin(
   globalVariables.saveFile.fileName,
   globalVariables.timer,
   globalVariables.fullPathToUpdateSalesforceComponent,
-  executeUpdateSalesforceComponent
+  executeUpdateSalesforceComponent,
+  updateCredentialsJson,
+  globalVariables.pathToCredentials
 );

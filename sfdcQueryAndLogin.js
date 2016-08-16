@@ -7,7 +7,9 @@ var sfdcQueryAndLogin = function(credentials,
                                  fileName,
                                  timer,
                                  fullPathToUpdateSalesforceComponent,
-                                 callback_executeUpdateSalesforceComponent){
+                                 callback_executeUpdateSalesforceComponent,
+                                 updateCredentialsJson,
+                                 pathToCredentials){
 
   var expiredAccessTokenError = 'INVALID_SESSION_ID';
   var query = "SELECT Id FROM " + tableNameToQuery + " WHERE Name='" + fileName + "'";
@@ -49,9 +51,8 @@ var sfdcQueryAndLogin = function(credentials,
   }
 
   function redirectBasedOnExpiredAccessToken(err){
-    if(err.errorCode && err.errorCode === expiredAccessTokenError){
+    if(err.errorCode === expiredAccessTokenError){
       logger.log('Info: access token expired, attempting to renew');
-      // update credentials.json
       return loginAndQuery();
     }
     else{
@@ -79,6 +80,7 @@ var sfdcQueryAndLogin = function(credentials,
    */
   function loginAndQuery(){
     executeLogin()
+      .then((results) => updateCredentialsJson(pathToCredentials, conn.accessToken, conn.instanceUrl))
       .then((results) => executeQuery(results))
       .then((results) => executeUpdateToSalesforce(results))
       .catch((error) => handleGenericError(error));

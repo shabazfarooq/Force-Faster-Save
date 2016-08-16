@@ -20,8 +20,6 @@ var logger = {
     console.log(prefix + '* ');
     console.log(prefix + '* ' + errorMessage);
     console.log(prefix + '* ');
-
-    // console.log(prefix + '---------------------');
   }
 }
 
