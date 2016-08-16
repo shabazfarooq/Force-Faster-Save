@@ -1,10 +1,8 @@
 Todo:
-- Save updated access token
 - Create a file (create metadata locally)
 - Highlight error line in sublime (is this possible?)
 - Run query
 - have init tool to create credentials.json and things like that (or not?)
-- add error handling for missing credentials.json
 
 Bugs:
 - Save an apexpage without an ending apexpage tag

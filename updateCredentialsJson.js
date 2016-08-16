@@ -8,7 +8,15 @@ var updateCredentialsJson = function(pathToCredientialsJson, accessToken, instan
   }
 
   // Load file
-  var credentialsJson = require(pathToCredientialsJson);
+  var credentialsJson;
+  try{
+    credentialsJson = require(pathToCredientialsJson);
+  }
+  catch(err){
+    logger.log('Error: unable to open credentials.json (missing or empty) ' + err);
+    process.exit();
+  }
+
 
   // Update object
   if(!credentialsJson.generated){
