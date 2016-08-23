@@ -52,6 +52,7 @@ var sfdcQueryAndLogin = function(credentials,
 
   function redirectBasedOnExpiredAccessToken(err){
     if(err.errorCode === expiredAccessTokenError){
+      initializeConnection({loginUrl: credentials.loginUrl});
       logger.log('Info: access token expired, attempting to renew');
       return loginAndQuery();
     }
