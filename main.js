@@ -12,6 +12,7 @@ var sfdcQueryAndLogin = require('./sfdcQueryAndLogin.js');
 var Timer = require('./Timer');
 var logger = require('./logger');
 var updateCredentialsJson = require('./updateCredentialsJson');
+var jsforceVisualForceUpdate = require('./jsforceVisualForceUpdate.js');
 var UPDATE_SALESFORCE_COMPONENT_JS = 'updateSalesForceComponent.js';
 
 /**
@@ -74,14 +75,25 @@ if(credentialsObj.generated){
 }
 
 // Query component id and push update to Salesforce
-sfdcQueryAndLogin(
-  globalVariables.salesforceCredentials,
-  globalVariables.tableNameToQuery,
-  globalVariables.saveFile.fullPath,
-  globalVariables.saveFile.fileName,
-  globalVariables.timer,
-  globalVariables.fullPathToUpdateSalesforceComponent,
-  executeUpdateSalesforceComponent,
-  updateCredentialsJson,
-  globalVariables.pathToCredentials
-);
+if(tableNameToQuery == 'ApexPage'){
+  jsforceVisualForceUpdate(
+    globalVariables.salesforceCredentials.loginUrl,
+    globalVariables.salesforceCredentials.username,
+    globalVariables.salesforceCredentials.password,
+    globalVariables.saveFile.fullPath,
+    globalVariables.saveFile.fileName
+  );
+}
+else{
+  sfdcQueryAndLogin(
+    globalVariables.salesforceCredentials,
+    globalVariables.tableNameToQuery,
+    globalVariables.saveFile.fullPath,
+    globalVariables.saveFile.fileName,
+    globalVariables.timer,
+    globalVariables.fullPathToUpdateSalesforceComponent,
+    executeUpdateSalesforceComponent,
+    updateCredentialsJson,
+    globalVariables.pathToCredentials
+  );
+}
