@@ -12,7 +12,7 @@ var sfdcQueryAndLogin = function(credentials,
                                  pathToCredentials){
 
   var expiredAccessTokenError = 'INVALID_SESSION_ID';
-  var query = "SELECT Id FROM " + tableNameToQuery + " WHERE Name='" + fileName + "'";
+  var query = "SELECT Id FROM " + tableNameToQuery + " WHERE Name='" + fileName + "' AND NamespacePrefix=NULL";
   var conn;
 
   /**
