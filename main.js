@@ -128,4 +128,3 @@ else{
     globalVariables.pathToCredentials
   );
 }
-
