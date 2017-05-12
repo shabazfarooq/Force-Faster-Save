@@ -47,7 +47,6 @@ var page = require('webpage').create();
 page.open(goToUrl, function(status){
   try{
     logger.log('Opening page ' + status);
-
     if(status !== 'success'){
       exit(1);
     }
@@ -66,7 +65,6 @@ page.open(goToUrl, function(status){
      */
     function waitForPageToLoad(){
       logger.log('Waiting for codeEditor');
-      
       do{
         page.sendEvent('mousemove');
       }
@@ -80,20 +78,22 @@ page.open(goToUrl, function(status){
     }
 
     function saveCode(){
-      // logger.log('Attempting save');
-      
-      page.evaluate(
-        function(codeToSave){
-          codeEditor.setValue(codeToSave);
-          document.querySelectorAll('.btn')[1].click();
-        },
-        saveFileContent
+      logger.log(
+        page.evaluate(
+          function(codeToSave){
+            codeEditor.setValue(codeToSave);
+            var saveButton = document.querySelectorAll(
+              '#ApexClassEditPage\\:theTemplate\\:theForm\\:thePageBlock\\:thePageBlockButtons\\:quickSave')[0];
+            saveButton.click();
+            return('Clicked on '+saveButton.value);
+          },
+          saveFileContent
+        )
       );
     }
 
     function waitForSaveToFinish(){
       logger.log('Saving...');
-      
       do{
         page.sendEvent('mousemove');
       }
@@ -109,7 +109,6 @@ page.open(goToUrl, function(status){
 
     function getSaveResult(){
       logger.log('Getting save result...');
-
       var saveError = getSaveErrors();
       if(saveError){
         logger.logSaveUnsuccessful(saveError);
