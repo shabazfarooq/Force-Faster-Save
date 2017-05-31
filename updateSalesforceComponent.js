@@ -82,8 +82,7 @@ page.open(goToUrl, function(status){
         page.evaluate(
           function(codeToSave){
             codeEditor.setValue(codeToSave);
-            var saveButton = document.querySelectorAll(
-              '#ApexClassEditPage\\:theTemplate\\:theForm\\:thePageBlock\\:thePageBlockButtons\\:quickSave')[0];
+            var saveButton = document.querySelectorAll('[id$=\\:theTemplate\\:theForm\\:thePageBlock\\:thePageBlockButtons\\:quickSave]')[0];
             saveButton.click();
             return('Clicked on '+saveButton.value);
           },
