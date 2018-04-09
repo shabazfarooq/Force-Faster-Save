@@ -8,6 +8,7 @@ var getTableToQuery = function(extension){
       return 'ApexPage';
     case 'trigger':
       return 'ApexTrigger';
+
     default:
       return unknownExtension();
   }

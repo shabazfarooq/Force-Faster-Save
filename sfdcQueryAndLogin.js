@@ -12,7 +12,7 @@ var sfdcQueryAndLogin = function(credentials,
                                  pathToCredentials){
 
   var expiredAccessTokenError = 'INVALID_SESSION_ID';
-  var query = "SELECT Id FROM " + tableNameToQuery + " WHERE Name='" + fileName + "'";
+  var query = "SELECT Id FROM " + tableNameToQuery + " WHERE Name='" + fileName + "' AND NamespacePrefix=NULL";
   var conn;
 
   /**
@@ -52,6 +52,7 @@ var sfdcQueryAndLogin = function(credentials,
 
   function redirectBasedOnExpiredAccessToken(err){
     if(err.errorCode === expiredAccessTokenError){
+      initializeConnection({loginUrl: credentials.loginUrl});
       logger.log('Info: access token expired, attempting to renew');
       return loginAndQuery();
     }

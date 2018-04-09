@@ -16,6 +16,7 @@ var extractFromFullPath = function(fullPath){
   splitByForwardSlashes.pop(); // remove file name
   splitByForwardSlashes.pop(); // remove one directory up
   splitByForwardSlashes.pop(); // remove second directory up
+  
   var pathToCredentials = splitByForwardSlashes.join('/') + '/credentials.json';
 
   return {
