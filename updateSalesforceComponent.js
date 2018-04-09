@@ -122,7 +122,7 @@ page.open(goToUrl, function(status){
             var returnError;
 
             try{
-              returnError = document.getElementsByClassName('detailHeaderHighlightMsg')[0].querySelectorAll('td')[1].innerText;
+              returnError = document.querySelectorAll('td[id*=theTemplate\\:theForm\\:thePageBlock\\:msg]')[1].textContent;
             }
             catch(error){
               // surpress exception
