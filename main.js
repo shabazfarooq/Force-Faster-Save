@@ -14,7 +14,9 @@ var Timer = require('./Timer');
 var logger = require('./logger');
 var updateCredentialsJson = require('./updateCredentialsJson');
 var jsforceVisualForceUpdate = require('./jsforceVisualForceUpdate.js');
+var jsforceVisualForceUpdate = require('./jsforceVisualForceUpdate.js');
 var jsforceAuraUpdate = require('./jsforceAuraUpdate.js');
+var jsforceRunTests = require('./jsforceRunTests.js');
 var UPDATE_SALESFORCE_COMPONENT_JS = 'updateSalesForceComponent.js';
 
 /**
@@ -56,6 +58,63 @@ var validatedArgs = validateAndExtractArgs(process.argv);
 globalVariables.saveFile.fullPath = validatedArgs.fullPathToSaveFile;
 globalVariables.fullPathToUpdateSalesforceComponent = 
   validatedArgs.fullPathToForceFasterSave + '/' + UPDATE_SALESFORCE_COMPONENT_JS;
+
+
+
+/**
+ * START TEMP ADD
+ */
+
+
+if(process.argv[2] == 'test'){
+  if(process.argv[3] == 'help'){
+    console.log('test CURRENT_DIR TEST_NAME CLASS_COVERAGE');
+    console.log('test ~/sfdc-workspace/amazon-uat');
+    process.exit();
+  }
+
+  // Extract vars
+  globalVariables.pathToCredentials = process.argv[3] + '/credentials.json';
+  let testClassName = process.argv[4];
+  // let classCoverageName = process.argv[5];
+  
+  // Handle credentials
+  var credentialsObj = readAndValidateLocalCredentials(globalVariables.pathToCredentials);
+  globalVariables.salesforceCredentials.loginUrl = credentialsObj.loginUrl;
+  globalVariables.salesforceCredentials.username = credentialsObj.username;
+  globalVariables.salesforceCredentials.password = credentialsObj.password;
+  if(credentialsObj.generated){
+    globalVariables.salesforceCredentials.generated.instanceUrl = credentialsObj.generated.instanceUrl;
+    globalVariables.salesforceCredentials.generated.accessToken = credentialsObj.generated.accessToken;
+  }
+
+  // Execute command
+  jsforceRunTests(
+    globalVariables.salesforceCredentials.loginUrl,
+    globalVariables.salesforceCredentials.username,
+    globalVariables.salesforceCredentials.password,
+    testClassName
+  );
+
+  return;
+}
+
+
+
+
+
+
+
+
+
+
+
+/**
+ * END TEMP ADD
+ */
+
+
+
 
 // Extract relevant variables from full path
 var saveFileFullPath = globalVariables.saveFile.fullPath;

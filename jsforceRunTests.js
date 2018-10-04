@@ -3,11 +3,8 @@ var fs = require("fs");
 var logger = require('./logger');
 
 
-function jsforceVisualForceUpdate(loginUrl, username, password, saveFileFullPath, saveFileName){
+function jsforceRunTests(loginUrl, username, password, classCoverageName, testClassName){
   var conn = new jsforce.Connection({loginUrl});
-
-  // Expected vars
-  var className = 'ConversionsController';
 
   // For use within promises
   var apexClassOrTrigger_result;
@@ -22,12 +19,11 @@ function jsforceVisualForceUpdate(loginUrl, username, password, saveFileFullPath
       return conn.tooling.query(`
         SELECT Id, Body
         FROM ApexClass
-        WHERE Name = '${className}'
+        WHERE Name = '${classCoverageName}'
       `);
     })
     .then((result) => {
       apexClassOrTrigger_result = result.records[0];
-      
 
       // Query Test Coverage
       return conn.tooling.query(`
@@ -43,26 +39,30 @@ function jsforceVisualForceUpdate(loginUrl, username, password, saveFileFullPath
       let coveredAverage = (apexCodeCoverage_result.NumLinesCovered / apexCodeCoverage_result.NumLinesUncovered) * 100;
 
       // Display code lines
+      console.log('\n\n');
       for(let i=0; i<apexClassOrTriggerBody.length; i++){
         let lineReference = i+1;
-        let prefix = apexCodeCoverage_result.Coverage.coveredLines.includes(lineReference) 
-          ? '+ ' 
+        let colorCode = apexCodeCoverage_result.Coverage.coveredLines.includes(lineReference) 
+          ? 'fgGreen' 
           : apexCodeCoverage_result.Coverage.uncoveredLines.includes(lineReference) 
-          ? '- ' 
-          : '  ';
+          ? 'fgRed' 
+          : 'reset';
 
-        console.log(prefix + apexClassOrTriggerBody[i]);
-        // console.log(lineReference + ' ' + prefix + apexClassOrTriggerBody[i]);
+        logger.logColor(
+          lineReference + ' ' + apexClassOrTriggerBody[i],
+          colorCode
+        );
       }
 
       // Display code coverage
-      console.log('');
-      console.log(apexCodeCoverage_result.NumLinesCovered 
+      logger.logColor(
+        '\n'
+        + apexCodeCoverage_result.NumLinesCovered
         + '/' 
         + apexCodeCoverage_result.NumLinesUncovered 
-        + ' (' + coveredAverage +  ' %)'
+        + ' (' + coveredAverage +  ' %)',
+        'fgCyan'
       );
-      console.log('');
     })
     .catch((error) => {
       logger.logSaveUnsuccessful(error);
