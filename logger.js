@@ -52,6 +52,10 @@ var logger = {
     var colorCode = colors[color] ? colors[color] : colors.reset;
 
     console.log(colorCode + message + colors.reset);
+  },
+  logLargeBreak: function(){
+    this.logColor('\n\n\n\n', 'reset');
+    this.logColor('\n\n\n\n', 'bgYellow');
   }
 }
 

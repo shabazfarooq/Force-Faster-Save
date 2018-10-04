@@ -3,7 +3,7 @@ var fs = require("fs");
 var logger = require('./logger');
 
 
-function jsforceRunTests(loginUrl, username, password, classCoverageName, testClassName){
+function jsforceRunTests(loginUrl, username, password, testClassName, classCoverageName){
   var conn = new jsforce.Connection({loginUrl});
 
   // For use within promises
@@ -12,16 +12,74 @@ function jsforceRunTests(loginUrl, username, password, classCoverageName, testCl
 
   // Login
   conn.login(username, password)
+    // Query Test Class Id
     .then((result) => {
       logger.log('Login Successful');
 
-      // Query Apex Class
       return conn.tooling.query(`
-        SELECT Id, Body
+        SELECT Id
         FROM ApexClass
-        WHERE Name = '${classCoverageName}'
+        WHERE Name = '${testClassName}'
       `);
     })
+    // Create Test Class Queue Item
+    .then((result) => {
+      return conn.tooling.create('ApexTestQueueItem', {ApexClassId: result.records[0].Id});
+    })
+    .then((result) => {
+      if(!result || !result.id || !result.success){
+        logger.logSaveUnsuccessful('Error while creating ApexTestQueueItem', result.errors);
+        return;
+      }
+
+      return waitTillTestFinishes(conn, result.id);
+    })
+    .catch((error) => {
+      logger.logSaveUnsuccessful(error);
+    });
+
+
+  let prevStatus = '';
+  let waitTillTestFinishes = function(conn, apexTestQueueItemId){
+    conn.tooling.query(`
+      SELECT Id, Status
+      FROM ApexTestQueueItem
+      WHERE Id = '${apexTestQueueItemId}'
+      ORDER BY CreatedDate DESC
+      LIMIT 1
+    `)
+      .then((result) => {
+        let status = result.records[0].Status; 
+        
+        if(status == prevStatus){
+          process.stdout.write('.');
+        }
+        else{
+          prevStatus = status;
+          process.stdout.write('\n' + status);
+        }
+
+        if(status == 'Completed'){
+          return gatherTestResults(conn);
+        }
+        else if(status == 'Failed'){
+          return;
+        }
+        else{
+          return waitTillTestFinishes(conn, apexTestQueueItemId);
+        }
+      })
+      .catch((error) => {
+        logger.logSaveUnsuccessful(error);
+      });
+  }
+
+  let gatherTestResults = function(conn){
+    conn.tooling.query(`
+      SELECT Id, Body
+      FROM ApexClass
+      WHERE Name = '${classCoverageName}'
+    `)
     .then((result) => {
       apexClassOrTrigger_result = result.records[0];
 
@@ -42,7 +100,7 @@ function jsforceRunTests(loginUrl, username, password, classCoverageName, testCl
       let coveredAverage = ((apexCodeCoverage_result.NumLinesCovered / totalLines) * 100).toFixed(2);
 
       // Display code lines
-      console.log('\n\n');
+      logger.logLargeBreak();
       for(let i=0; i<apexClassOrTriggerBody.length; i++){
         let lineReference = i+1;
         let colorCode = apexCodeCoverage_result.Coverage.coveredLines.includes(lineReference) 
@@ -70,6 +128,7 @@ function jsforceRunTests(loginUrl, username, password, classCoverageName, testCl
     .catch((error) => {
       logger.logSaveUnsuccessful(error);
     });
+  }
 }
 
 module.exports = jsforceRunTests;

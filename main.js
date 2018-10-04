@@ -76,7 +76,7 @@ if(process.argv[2] == 'test'){
   // Extract vars
   globalVariables.pathToCredentials = process.argv[3] + '/credentials.json';
   let testClassName = process.argv[4];
-  // let classCoverageName = process.argv[5];
+  let classCoverageName = process.argv[5];
   
   // Handle credentials
   var credentialsObj = readAndValidateLocalCredentials(globalVariables.pathToCredentials);
@@ -93,7 +93,8 @@ if(process.argv[2] == 'test'){
     globalVariables.salesforceCredentials.loginUrl,
     globalVariables.salesforceCredentials.username,
     globalVariables.salesforceCredentials.password,
-    testClassName
+    testClassName,
+    classCoverageName
   );
 
   return;
