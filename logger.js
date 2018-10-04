@@ -54,8 +54,9 @@ var logger = {
     console.log(colorCode + message + colors.reset);
   },
   logLargeBreak: function(){
-    this.logColor('\n\n\n\n', 'reset');
+    this.log('\n\n\n\n');
     this.logColor('\n\n\n\n', 'bgYellow');
+    this.log('\n\n\n\n');
   }
 }
 
