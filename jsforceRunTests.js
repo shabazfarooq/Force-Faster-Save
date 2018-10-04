@@ -60,7 +60,7 @@ function jsforceRunTests(loginUrl, username, password, testClassName, classCover
         }
 
         if(status == 'Completed'){
-          return gatherTestResults(conn);
+          return gatherTestResultsOnSuccess(conn, apexTestQueueItemId);
         }
         else if(status == 'Failed'){
           return;
@@ -74,7 +74,7 @@ function jsforceRunTests(loginUrl, username, password, testClassName, classCover
       });
   }
 
-  let gatherTestResults = function(conn){
+  let gatherTestResultsOnSuccess = function(conn, apexTestQueueItemId){
     conn.tooling.query(`
       SELECT Id, Body
       FROM ApexClass
@@ -124,6 +124,37 @@ function jsforceRunTests(loginUrl, username, password, testClassName, classCover
         + totalLines,
         'fgCyan'
       );
+
+      return conn.tooling.query(`
+        SELECT Id, MethodName, Outcome, Message, StackTrace
+        FROM ApexTestResult
+        WHERE QueueItemId = '${apexTestQueueItemId}'
+        ORDER BY TestTimestamp DESC
+      `);
+    })
+    .then((result) => {
+      console.log('\n\n');
+
+      for(let i=0; i<result.records.length; i++){
+        let record = result.records[i];
+        let failed = record.Outcome == 'Fail' || record.Outcome == 'Complete Fail';
+
+        logger.logColor(
+          `[${record.Outcome}] ${record.ApexClass} . ${record.MethodName}`,
+          failed ? 'fgRed' : 'fgGreen'
+        );
+        if(record.Message){
+          logger.logColor(
+            record.Message,
+            'fgCyan'
+          );
+          logger.logColor(
+            record.StackTrace,
+            'fgCyan'
+          );
+          logger.log('');
+        }
+      }
     })
     .catch((error) => {
       logger.logSaveUnsuccessful(error);
