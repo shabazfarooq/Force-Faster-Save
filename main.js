@@ -14,7 +14,7 @@ var Timer = require('./Timer');
 var logger = require('./logger');
 var updateCredentialsJson = require('./updateCredentialsJson');
 var jsforceVisualForceUpdate = require('./jsforceVisualForceUpdate.js');
-var jsforceVisualForceUpdate = require('./jsforceVisualForceUpdate.js');
+var jsforceExecuteSoql = require('./jsforceExecuteSoql.js');
 var jsforceAuraUpdate = require('./jsforceAuraUpdate.js');
 var jsforceRunTests = require('./jsforceRunTests.js');
 var UPDATE_SALESFORCE_COMPONENT_JS = 'updateSalesForceComponent.js';
@@ -139,12 +139,6 @@ else{
 // Print start message
 logger.logSaveStart(globalVariables.saveFile.fileNameWithExt, globalVariables.timer.getStartTimeFormated());
 
-// Determine sObject type based on extension, set relevant global variables
-if(!savingAuraFile){
-  var tableNameToQuery = getTableExtension(globalVariables.saveFile.fileExtension);
-  globalVariables.tableNameToQuery = tableNameToQuery;
-}
-
 // Validate and ensure local credentials.json exists
 var credentialsObj = readAndValidateLocalCredentials(globalVariables.pathToCredentials);
 globalVariables.salesforceCredentials.loginUrl = credentialsObj.loginUrl;
@@ -165,26 +159,40 @@ if(savingAuraFile){
     globalVariables.saveAuraFile.bundleName,
     globalVariables.saveAuraFile.defType
   );
-}
-else if(tableNameToQuery == 'ApexPage'){
-  jsforceVisualForceUpdate(
+
+} else if (globalVariables.saveFile.fileExtension == 'soql') {
+  jsforceExecuteSoql(
     globalVariables.salesforceCredentials.loginUrl,
     globalVariables.salesforceCredentials.username,
     globalVariables.salesforceCredentials.password,
     globalVariables.saveFile.fullPath,
     globalVariables.saveFile.fileName
   );
-}
-else{
-  sfdcQueryAndLogin(
-    globalVariables.salesforceCredentials,
-    globalVariables.tableNameToQuery,
-    globalVariables.saveFile.fullPath,
-    globalVariables.saveFile.fileName,
-    globalVariables.timer,
-    globalVariables.fullPathToUpdateSalesforceComponent,
-    executeUpdateSalesforceComponent,
-    updateCredentialsJson,
-    globalVariables.pathToCredentials
-  );
+} else {
+  // Determine sObject type based on extension, set relevant global variables
+  var tableNameToQuery = getTableExtension(globalVariables.saveFile.fileExtension);
+  globalVariables.tableNameToQuery = tableNameToQuery;
+
+  if(tableNameToQuery == 'ApexPage'){
+    jsforceVisualForceUpdate(
+      globalVariables.salesforceCredentials.loginUrl,
+      globalVariables.salesforceCredentials.username,
+      globalVariables.salesforceCredentials.password,
+      globalVariables.saveFile.fullPath,
+      globalVariables.saveFile.fileName
+    );
+  }
+  else{
+    sfdcQueryAndLogin(
+      globalVariables.salesforceCredentials,
+      globalVariables.tableNameToQuery,
+      globalVariables.saveFile.fullPath,
+      globalVariables.saveFile.fileName,
+      globalVariables.timer,
+      globalVariables.fullPathToUpdateSalesforceComponent,
+      executeUpdateSalesforceComponent,
+      updateCredentialsJson,
+      globalVariables.pathToCredentials
+    );
+  }
 }

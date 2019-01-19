@@ -13,9 +13,11 @@ var extractFromFullPath = function(fullPath){
 
   // Generate path to credentials, assume that parent directory is 2 directories up
   // from full path
-  splitByForwardSlashes.pop(); // remove file name
-  splitByForwardSlashes.pop(); // remove one directory up
-  splitByForwardSlashes.pop(); // remove second directory up
+  var fileName = splitByForwardSlashes.pop(); // remove file name
+  if (!fileName.endsWith('.apex') && !fileName.endsWith('.soql')) {
+    splitByForwardSlashes.pop(); // remove one directory up
+    splitByForwardSlashes.pop(); // remove second directory up
+  }
   
   var pathToCredentials = splitByForwardSlashes.join('/') + '/credentials.json';
 
