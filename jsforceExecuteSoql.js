@@ -5,8 +5,8 @@ require('console.table');
 
 function jsforceExecuteSoql(loginUrl, username, password, saveFileFullPath, saveFileName){
   var soqlFile = readFile(saveFileFullPath);
-  var queryToRun = getQuery(soqlFile);
-  var fields = getFields(queryToRun);
+  var queryToRun = getQueryFromFileContents(soqlFile);
+  var fields = getFieldsFromQuery(queryToRun);
 
   var conn = new jsforce.Connection({loginUrl});
 
@@ -38,7 +38,7 @@ function readFile(saveFileFullPath){
   return soqlFileContents;
 }
 
-function getQuery(soqlFileContents) {
+function getQueryFromFileContents(soqlFileContents) {
   var query = '';
   var queryStarted = false;
 
@@ -63,28 +63,80 @@ function getQuery(soqlFileContents) {
   return query;
 }
 
-// TODO: Extract comma separated fields between SELECT and FROM
-function getFields(queryString) {
-  return 'id, name, createdby.name';
+function getFieldsFromQuery(queryString) {
+  var indexOfFrom = queryString.indexOf("from");
+  var strInBetweenSelectAndFrom = queryString.substring(7, (indexOfFrom-1));
+  var strWithoutWhitespace = strInBetweenSelectAndFrom.replace(/\s/g, '');
+  var fields = strWithoutWhitespace.split(',');
+
+  return fields;
 }
 
 // Create a method to extract each field from the nested objects
 function displayRecords(records, fields) {
-  
-
-  console.log(records);
-  if (!records) {
+  if (!records || !fields) {
     return;
   }
 
-  var recordsLength = records.length;
+  var displayableRecords = getDisplayableRecords(records, fields);
+  display(displayableRecords);
 
-  for (var i=0; i<recordsLength; i++) {
-    delete records[i].attributes;
+  // TODO: Get the proper case sensitive field names from salesforce
+  function getDisplayableRecords(records, fields) {
+    var returnRecords = [];
+
+    for (var i=0; i<records.length; i++) {
+      var record = records[i];
+      var cleanRecord = {};
+      
+      for (var j=0; j<fields.length; j++) {
+        var field = fields[j];
+        var fieldSplit = field.split('.');
+        var value = record;
+
+        for (var k=0; k<fieldSplit.length; k++) {
+          value = getKeyValueFromObject(fieldSplit[k], value);
+
+          // No value, so continue to next field
+          if (value == null || value == undefined) {
+            value = null;
+            continue;
+          }
+        }
+
+        cleanRecord[field] = value;
+      }
+
+      returnRecords.push(cleanRecord);
+    }
+
+    function getKeyValueFromObject(key, obj) {
+      var keyLowercase = key.toLowerCase();
+      var keysInObject = Object.keys(obj);
+      var value = {};
+
+      for (var i=0; i<keysInObject.length; i++) {
+        var keyInObject = keysInObject[i];
+
+        if (keyLowercase == keyInObject.toLowerCase()) {
+          value = obj[keyInObject];
+          break;
+        }
+      }
+
+      return value;
+    }
+
+    return returnRecords;
   }
 
-  console.table(records);
-  console.log('\nTotal Records: ' + recordsLength);
+
+  function display(records) {
+    console.log('');
+    console.table(records);
+    console.log('\nTotal Records: ' + records.length);
+  }
 }
+
 
 module.exports = jsforceExecuteSoql;
