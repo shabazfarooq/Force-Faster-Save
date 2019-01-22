@@ -3,6 +3,9 @@ var fs = require("fs");
 var logger = require('./logger');
 require('console.table');
 
+// This query breaks it:
+// [Select Id, LogUserId, LogLength, LastModifiedDate, Request, Operation, Application, Status, DurationMilliseconds, SystemModstamp, StartTime, Location FROM ApexLog LIMIT 1]
+
 function jsforceExecuteSoql(loginUrl, username, password, saveFileFullPath, saveFileName){
   var soqlFile = readFile(saveFileFullPath);
   var queryToRun = getQueryFromFileContents(soqlFile);

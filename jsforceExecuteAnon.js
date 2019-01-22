@@ -11,12 +11,10 @@ function jsforceExecuteAnon(loginUrl, username, password, saveFileFullPath, save
     .then((result) => {
       logger.log('Login Successful');
 
-      console.log('here');
-
-      // return conn.query(queryToRun);
+      return conn.tooling.executeAnonymous(executeAnonFileContents);
     })
     .then((result) => {
-
+      console.log(result);
     })
     .catch((error) => {
       logger.logSaveUnsuccessful(error);
@@ -30,12 +28,48 @@ function readFile(saveFileFullPath){
     soqlFileContents = data.toString();
   }
   catch(err){
-    logger.log('Error: unable to open Soql file (missing) ' + err);
+    logger.log('Error: unable to open Apex file (missing) ' + err);
     process.exit();
   }
 
   return soqlFileContents;
 }
 
+function displayResponse(response) {
+  
+}
+
 
 module.exports = jsforceExecuteAnon;
+
+
+
+
+
+
+
+
+
+
+
+// SUCCESS
+// {
+//   line: -1,
+//     column: -1,
+//       compiled: true,
+//         success: true,
+//           compileProblem: null,
+//             exceptionStackTrace: null,
+//               exceptionMessage: null
+// }
+
+// FAIL
+// {
+//   line: 1,
+//     column: 13,
+//       compiled: false,
+//         success: false,
+//           compileProblem: 'Unexpected token \'(\'.',
+//             exceptionStackTrace: null,
+//               exceptionMessage: null
+// }
