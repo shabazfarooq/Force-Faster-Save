@@ -48,10 +48,34 @@ var logger = {
     console.log(prefix + '* ' + errorMessage);
     console.log(prefix + '* ');
   },
+  logApexDebugFail: function(failResult){
+    var err = ["ERROR: Line " + failResult.line + ", Column " + failResult.column + " -- " + failResult.compileProblem];
+
+    if (failResult.exceptionStackTrace) {
+      err.push("ExceptionStackTrace: " + failResult.exceptionStackTrace);
+    }
+    if (failResult.exceptionMessage) {
+      err.push("ExceptionMessage: " + failResult.exceptionMessage);
+    }
+
+    console.log(prefix + '* ');
+    for (var i=0; i<err.length; i++) {
+      console.log(prefix + '* ' + err[i]);
+    }
+    console.log(prefix + '* ');
+  },
   logColor: function(message, color){
     var colorCode = colors[color] ? colors[color] : colors.reset;
 
     console.log(colorCode + message + colors.reset);
+  },
+  logApexDebug: function(debugLog){
+    var splitByLines = debugLog.split('\n');
+    
+    for (var i=0; i<splitByLines.length; i++) {
+      var color = splitByLines[i].includes('|DEBUG|') ? "bgRed" : "fgCyan";
+      this.logColor(splitByLines[i], color);
+    }
   },
   logLargeBreak: function(){
     this.log('\n\n\n\n');

@@ -4,6 +4,10 @@ var logger = require('./logger');
 
 // TODO: Clean up message prints
 // TODO: Check to see if additional filter querys are required for the apex log query. ie: type=API, userId=thisUser
+// ---> need to loop this query until after start time probbaly? ... or maybe not actually..
+// ----> or delete all my logs first?
+// TODO: Add logger function for this files result failure (clean this up)
+
 
 function jsforceExecuteAnon(loginUrl, username, password, saveFileFullPath, saveFileName){
   var executeAnonFileContents = readFile(saveFileFullPath);
@@ -20,22 +24,14 @@ function jsforceExecuteAnon(loginUrl, username, password, saveFileFullPath, save
     .then((result) => {
       // Determine if failure
       if (!result || !result.compiled || !result.success) {
-        var err = "ERROR: Line " + result.line + ", Column " + result.column + " -- " + result.compileProblem;
-
-        if (result.exceptionStackTrace) {
-          err +="\nExceptionStackTrace: " + result.exceptionStackTrace;
-        }
-        if (result.exceptionMessage) {
-          err +="\nExceptionMessage: " + result.exceptionMessage;
-        }
-        
-        throw err;
+        var errMsg = logger.logApexDebugFail(result);
+        throw errMsg;
       }
 
       // Query latest log file
       return conn.query(`SELECT Id, 
         LogUserId, LogLength, LastModifiedDate, Request, Operation, Application, Status, DurationMilliseconds, SystemModstamp, StartTime, Location
-        FROM ApexLog ORDER BY StartTime LIMIT 1`
+        FROM ApexLog ORDER BY StartTime DESC LIMIT 1`
       );
     })
     .then((result) => {
@@ -46,10 +42,10 @@ function jsforceExecuteAnon(loginUrl, username, password, saveFileFullPath, save
       return conn.tooling.getDebugLog(result.records[0].Id);
     })
     .then((result) => {
-      console.log(result);
+      logger.logApexDebug(result);
     })
     .catch((error) => {
-      logger.logSaveUnsuccessful(error);
+      logger.logApexDebugFail(error);
     });
 }
 
