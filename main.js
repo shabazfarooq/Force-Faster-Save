@@ -15,6 +15,7 @@ var logger = require('./logger');
 var updateCredentialsJson = require('./updateCredentialsJson');
 var jsforceVisualForceUpdate = require('./jsforceVisualForceUpdate.js');
 var jsforceExecuteSoql = require('./jsforceExecuteSoql.js');
+var jsforceExecuteAnon = require('./jsforceExecuteAnon.js');
 var jsforceAuraUpdate = require('./jsforceAuraUpdate.js');
 var jsforceRunTests = require('./jsforceRunTests.js');
 var UPDATE_SALESFORCE_COMPONENT_JS = 'updateSalesForceComponent.js';
@@ -162,6 +163,14 @@ if(savingAuraFile){
 
 } else if (globalVariables.saveFile.fileExtension == 'soql') {
   jsforceExecuteSoql(
+    globalVariables.salesforceCredentials.loginUrl,
+    globalVariables.salesforceCredentials.username,
+    globalVariables.salesforceCredentials.password,
+    globalVariables.saveFile.fullPath,
+    globalVariables.saveFile.fileName
+  );
+} else if (globalVariables.saveFile.fileExtension == 'apex') {
+  jsforceExecuteAnon(
     globalVariables.salesforceCredentials.loginUrl,
     globalVariables.salesforceCredentials.username,
     globalVariables.salesforceCredentials.password,
