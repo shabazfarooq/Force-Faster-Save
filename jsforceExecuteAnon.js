@@ -69,3 +69,18 @@ function readFile(saveFileFullPath){
 
 
 module.exports = jsforceExecuteAnon;
+
+
+
+/*** THIS FUNCTION NEEDS TO BE ADDED TO ./node_modules/jsforce/lib/api/tooling.js
+/**
+ * Retrieve Apex Log Body
+ *
+ * @param {String} apexLogId - Apex Log record Id
+ * @param {Callback.<Tooling~ExecuteAnonymousResult>} [callback] - Callback function
+ * @returns {Promise.<Tooling~ExecuteAnonymousResult>}
+ */
+// Tooling.prototype.getDebugLog = function(apexLogId, callback) {
+//   var url = this._baseUrl() + "/sobjects/ApexLog/" + apexLogId + "/Body/";
+//   return this.request(url).thenCall(callback);
+// };
