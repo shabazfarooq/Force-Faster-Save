@@ -67,7 +67,7 @@ function getQueryFromFileContents(soqlFileContents) {
 }
 
 function getFieldsFromQuery(queryString) {
-  var indexOfFrom = queryString.indexOf("from");
+  var indexOfFrom = queryString.toLowerCase().indexOf("from");
   var strInBetweenSelectAndFrom = queryString.substring(7, (indexOfFrom-1));
   var strWithoutWhitespace = strInBetweenSelectAndFrom.replace(/\s/g, '');
   var fields = strWithoutWhitespace.split(',');
